@@ -13,6 +13,13 @@ body {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
+.containerList {
+  flex: 1;
+  max-height: 215px;
+  overflow-y: scroll; /* Habilitar la barra de desplazamiento vertical */
+}
+
+
 h1 {
   text-align: center;
 }
@@ -75,6 +82,12 @@ li.checked .deleteButton {
   display: none;
 }
 
+.tarea-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .deleteButton {
   float: right;
   background-color: #f44336;
@@ -83,4 +96,18 @@ li.checked .deleteButton {
   padding: 5px 10px;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.eliminar-icon {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.completada span {
+  text-decoration: line-through;
+}
+
+li button {
+  margin-left: 10px;
 }

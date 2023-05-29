@@ -51,6 +51,33 @@ class ListaEnlazada {
     previo.siguiente = actual.siguiente;
   }
 
+  eliminarPorIndice(indice) {
+    if (!this.cabeza || indice < 0) {
+      return;
+    }
+
+    if (indice === 0) {
+      this.cabeza = this.cabeza.siguiente;
+      return;
+    }
+
+    let actual = this.cabeza;
+    let previo = null;
+    let contador = 0;
+
+    while (actual && contador < indice) {
+      previo = actual;
+      actual = actual.siguiente;
+      contador++;
+    }
+
+    if (!actual) {
+      return;
+    }
+
+    previo.siguiente = actual.siguiente;
+  }
+
   obtenerLista() {
     const lista = [];
     let actual = this.cabeza;
@@ -103,7 +130,7 @@ class ListaEnlazada {
     while (izquierda <= derecha) {
       const medio = Math.floor((izquierda + derecha) / 2);
       if (lista[medio] === valor) {
-        return true;
+        return true; // Devolver true si la tarea se encuentra
       } else if (lista[medio].localeCompare(valor) < 0) {
         izquierda = medio + 1;
       } else {
@@ -111,7 +138,7 @@ class ListaEnlazada {
       }
     }
 
-    return false;
+    return false; // Devolver false si la tarea no se encuentra
   }
 }
 
@@ -119,20 +146,25 @@ class ListaEnlazada {
 const listaTareas = new ListaEnlazada();
 
 // Obtener elementos del DOM
-const taskInput = document.getElementById('taskInput');
-const taskList = document.getElementById('taskList');
-const sortButton = document.getElementById('sortButton');
-const searchInput = document.getElementById('searchInput');
-const searchButton = document.getElementById('searchButton');
+const taskInput = document.getElementById("taskInput");
+const taskList = document.getElementById("taskList");
+const sortButton = document.getElementById("sortButton");
+const searchInput = document.getElementById("searchInput");
+const searchButton = document.getElementById("searchButton");
 
 // Agregar tarea a la lista enlazada y mostrarla en la página
 function agregarTarea() {
   const tarea = taskInput.value.trim();
 
-  if (tarea !== '') {
-    listaTareas.agregar(tarea);
-    renderizarLista();
-    taskInput.value = '';
+  if (tarea !== "") {
+    const tareaExistente = listaTareas.buscar(tarea);
+    if (tareaExistente) {
+      alert("La tarea ya existe");
+    } else {
+      listaTareas.agregar(tarea);
+      renderizarLista();
+    }
+    taskInput.value = "";
   }
 }
 
@@ -143,67 +175,117 @@ function ordenarLista() {
 }
 
 // Buscar tarea en la lista y resaltarla en la página
-let tareaEncontrada = '';
+let tareaEncontradaIndex = -1; // Índice de la tarea encontrada
 
 function buscarTarea() {
   const tareaBuscada = searchInput.value.trim();
 
-  if (tareaBuscada !== '') {
-    const encontrado = listaTareas.buscar(tareaBuscada);
-    tareaEncontrada = encontrado ? tareaBuscada : '';
-    renderizarLista();
-    searchInput.value = '';
+  if (tareaBuscada !== "") {
+    tareaEncontradaIndex = listaTareas
+      .obtenerLista()
+      .findIndex((tarea) => tarea === tareaBuscada);
   } else {
-    tareaEncontrada = '';
-    renderizarLista();
+    tareaEncontradaIndex = -1;
   }
+
+  renderizarLista();
 }
 
+function eliminarTarea(indice) {
+  const tareaEliminada = listaTareas.obtenerLista()[indice];
+  listaTareas.eliminar(tareaEliminada);
+
+  tareaEncontradaIndex = -1; // Restablecer tareaEncontradaIndex a -1
+  renderizarLista();
+}
 
 // Renderizar la lista de tareas en la página
 function renderizarLista() {
-  taskList.innerHTML = '';
+  taskList.innerHTML = "";
 
   const lista = listaTareas.obtenerLista();
 
-  if (tareaEncontrada !== '') {
-    const tareaEncontradaLi = document.createElement('li');
-    tareaEncontradaLi.textContent = tareaEncontrada;
-    tareaEncontradaLi.classList.add('encontrado');
-    taskList.appendChild(tareaEncontradaLi);
+  if (tareaEncontradaIndex !== -1) {
+    const tareaEncontrada = lista[tareaEncontradaIndex];
+
+    const li = document.createElement("li");
+    li.classList.add("tarea-item");
+
+    if (tareaEncontradaIndex !== -1) {
+      li.classList.add("encontrado");
+    }
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.addEventListener("change", () =>
+      marcarTarea(tareaEncontradaIndex)
+    );
+
+    function marcarTarea(indice) {
+      const tareaItem = taskList.childNodes[indice];
+      tareaItem.classList.toggle("completada");
+    }
+
+    const imgEliminar = document.createElement("img");
+    imgEliminar.src = "./img/deleteicon.png";
+    imgEliminar.alt = "Eliminar";
+    imgEliminar.classList.add("eliminar-icon");
+    imgEliminar.addEventListener("click", () =>
+      eliminarTarea(tareaEncontradaIndex)
+    );
+
+    const spanTarea = document.createElement("span");
+    spanTarea.textContent = tareaEncontrada;
+
+    li.appendChild(checkbox);
+    li.appendChild(spanTarea);
+    li.appendChild(imgEliminar);
+
+    taskList.appendChild(li);
   } else {
-    lista.forEach(tarea => {
-      const li = document.createElement('li');
-      li.textContent = tarea;
+    lista.forEach((tarea, indice) => {
+      const li = document.createElement("li");
+      li.classList.add("tarea-item");
+
+      if (indice === tareaEncontradaIndex) {
+        li.classList.add("encontrado");
+      }
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.addEventListener("change", () => marcarTarea(indice));
+
+      function marcarTarea(indice) {
+        const tareaItem = taskList.childNodes[indice];
+        tareaItem.classList.toggle("completada");
+      }
+
+      const imgEliminar = document.createElement("img");
+      imgEliminar.src = "./img/deleteicon.png";
+      imgEliminar.alt = "Eliminar";
+      imgEliminar.classList.add("eliminar-icon");
+      imgEliminar.addEventListener("click", () => eliminarTarea(indice));
+
+      const spanTarea = document.createElement("span");
+      spanTarea.textContent = tarea;
+
+      li.appendChild(checkbox);
+      li.appendChild(spanTarea);
+      li.appendChild(imgEliminar);
+
       taskList.appendChild(li);
     });
   }
 }
 
-
-// Resaltar la tarea buscada en la página
-function resaltarTarea(encontrado, tareaBuscada) {
-  const tareas = taskList.getElementsByTagName('li');
-
-  for (let i = 0; i < tareas.length; i++) {
-    const tarea = tareas[i].textContent;
-
-    if (tarea === tareaBuscada) {
-      tareas[i].classList.add(encontrado ? 'encontrado' : 'no-encontrado');
-    } else {
-      tareas[i].classList.remove('encontrado', 'no-encontrado');
-    }
-  }
-}
-
 // Evento clic del botón "Agregar"
-document.getElementById('addButton').addEventListener('click', agregarTarea);
+document.getElementById("addButton").addEventListener("click", agregarTarea);
 
 // Evento clic del botón "Ordenar"
-sortButton.addEventListener('click', ordenarLista);
+sortButton.addEventListener("click", ordenarLista);
 
 // Evento clic del botón "Buscar"
-searchButton.addEventListener('click', buscarTarea);
+searchButton.addEventListener("click", buscarTarea);
 
 // Llamar a la función de renderizado inicial
 renderizarLista();
