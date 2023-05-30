@@ -210,7 +210,6 @@ function renderizarLista() {
 
     const li = document.createElement("li");
     li.classList.add("tarea-item");
-    li.classList.add("encontrado");
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";

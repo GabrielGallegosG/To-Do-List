@@ -94,6 +94,10 @@ li.checked .deleteButton {
   align-items: center;
 }
 
+.encontrado {
+  text-decoration: line-through;
+}
+
 .deleteButton {
   float: right;
   background-color: #f44336;
