@@ -51,33 +51,6 @@ class ListaEnlazada {
     previo.siguiente = actual.siguiente;
   }
 
-  eliminarPorIndice(indice) {
-    if (!this.cabeza || indice < 0) {
-      return;
-    }
-
-    if (indice === 0) {
-      this.cabeza = this.cabeza.siguiente;
-      return;
-    }
-
-    let actual = this.cabeza;
-    let previo = null;
-    let contador = 0;
-
-    while (actual && contador < indice) {
-      previo = actual;
-      actual = actual.siguiente;
-      contador++;
-    }
-
-    if (!actual) {
-      return;
-    }
-
-    previo.siguiente = actual.siguiente;
-  }
-
   obtenerLista() {
     const lista = [];
     let actual = this.cabeza;
